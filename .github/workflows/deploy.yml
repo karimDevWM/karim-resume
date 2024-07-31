@@ -1,4 +1,4 @@
-name: Deploy Images to GHCR
+name: Deploy Image to GHCR
 
 on:
   pull_request:
