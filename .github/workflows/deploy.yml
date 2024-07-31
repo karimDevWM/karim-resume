@@ -32,14 +32,26 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-        - name: install ssh keys
-        # check this thread tounderstand why its needed:
-        # <https://stackoverflow.com/a/70447517
-          run: |
-            install -m 600 -D /dev/null ~/.ssh/id_rsa
-            echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-        - name: connect and pull
-          run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
-        - name: cleanup
-          run: rm -rf ~/.ssh
+          - name: Start SSH agent
+            run: eval $(ssh-agent -s)
+        
+          - name: Add SSH key
+            run: |
+              echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+            env:
+              SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        
+          - name: Verify SSH access
+            run: ssh -o StrictHostKeyChecking=no user@server "echo 'SSH access verified'"
+        
+          - name: install ssh keys
+          # check this thread tounderstand why its needed:
+          # <https://stackoverflow.com/a/70447517
+            run: |
+              install -m 600 -D /dev/null ~/.ssh/id_rsa
+              echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+              ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
+          - name: connect and pull
+            run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
+          - name: cleanup
+            run: rm -rf ~/.ssh
