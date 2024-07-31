@@ -40,7 +40,7 @@ jobs:
               SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         
           - name: Verify SSH access
-            run: ssh -o StrictHostKeyChecking=no user@server "echo 'SSH access verified'"
+            run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH access verified'"
         
           - name: install ssh keys
           # check this thread tounderstand why its needed:
