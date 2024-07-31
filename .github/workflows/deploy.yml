@@ -1,4 +1,4 @@
-name: Deploy Images to GHCR
+name: Deploy Image to GHCR
 
 on:
   pull_request:
@@ -23,8 +23,8 @@ jobs:
 
           - name: 'Build Inventory Image'
             run: |
-              docker build --no-cache . --tag ghcr.io/karimdevwm/snapface:latest
-              docker push ghcr.io/karimdevwm/snapface:latest
+              docker build --no-cache . --tag ghcr.io/karimdevwm/karim-resume:latest
+              docker push ghcr.io/karimdevwm/karim-resume:latest
           
       deploy:
         needs: push-store-image
