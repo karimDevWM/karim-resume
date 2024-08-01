@@ -18,7 +18,7 @@ FROM nginx:alpine
 COPY --from=build /app/dist/karim-portfolio /usr/share/nginx/html
 
 # Copy custom nginx configuration if needed
-# COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 4200
 
