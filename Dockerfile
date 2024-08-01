@@ -15,7 +15,7 @@ RUN npm run build --prod
 FROM nginx:alpine
 
 # Copy the build output to the Nginx html directory
-COPY --from=build /app/dist/<your-angular-project> /usr/share/nginx/html
+COPY --from=build /app/dist/<karim-portfolio> /usr/share/nginx/html
 
 # Copy custom nginx configuration if needed
 # COPY nginx.conf /etc/nginx/nginx.conf
