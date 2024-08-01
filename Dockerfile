@@ -1,26 +1,27 @@
 # Stage 1: Build the Angular application
 FROM node:18 as build
 
+# Create and set the working directory
 WORKDIR /app
 
-# Copy the package files and install dependencies
+# Copy package.json and package-lock.json
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code and build it
+# Copy the rest of the application files
 COPY . .
-RUN npm run build --prod
 
-# Stage 2: Serve the application with Nginx
-FROM nginx:alpine
+# Set the environment variable to increase memory limit
+ENV NODE_OPTIONS=--max_old_space_size=4096
 
-# Copy the build output to the Nginx html directory
-COPY --from=build /app/dist/karim-portfolio /usr/share/nginx/html
+# Build the Angular application based on the provided environment
+ARG ANGULAR_ENV=production
+RUN npm run build -- --configuration=$ANGULAR_ENV
 
-# Copy custom nginx configuration if needed
-COPY nginx.conf /etc/nginx/nginx.conf
-
+# Expose the port the app runs on
 EXPOSE 4200
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+# Command to run the application
+CMD ["npm", "start"]
