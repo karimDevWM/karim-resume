@@ -20,7 +20,7 @@ COPY --from=build /app/dist/karim-portfolio /usr/share/nginx/html
 # Copy custom nginx configuration if needed
 # COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 80
+EXPOSE 4200
 
 # Start Nginx server
 CMD ["nginx", "-g", "daemon off;"]
