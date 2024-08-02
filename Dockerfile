@@ -18,4 +18,5 @@ COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=build /app/dist/karim-portfolio/browser /usr/share/nginx/html
 
+# expose port 80
 EXPOSE 80
