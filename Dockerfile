@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:alpine AS build
 
 WORKDIR /app
 
@@ -6,7 +6,7 @@ COPY package*.json ./
 
 RUN npm ci
 
-Run npm install -g @angular/cli
+RUN npm install -g @angular/cli
 
 COPY . .
 
