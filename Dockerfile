@@ -1,11 +1,21 @@
 FROM node:alpine
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . /usr/src/app
+COPY package*.json ./
 
-RUN npm install -g @angular/cli
+RUN npm ci
 
-RUN npm install
+Run npm install -g @angular/cli
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+COPY . .
+
+RUN npm run build --configuration=production
+
+FROM nginx:latest
+
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=build /ap/dist/karim-portfolio/browser /usr/share/nginx/html
+
+EXPOSE 80
