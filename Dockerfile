@@ -1,11 +1,22 @@
-FROM node:alpine
+FROM node:latest as build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY . /usr/src/app
+COPY package*.json ./
+
+RUN npm ci
 
 RUN npm install -g @angular/cli
 
-RUN npm install
+COPY . .
 
-CMD ["ng", "serve", "--host", "0.0.0.0"]
+RUN npm run build --configuration=production
+
+FROM nginx:latest
+
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=build /app/dist/karim-portfolio/browser /usr/share/nginx/html
+
+# expose port 80
+EXPOSE 80
