@@ -40,3 +40,8 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+env github actions for karim vps 2 ionos.txt
+
+# Local Netlify folder
+.netlify
+netlify_Infos.txt

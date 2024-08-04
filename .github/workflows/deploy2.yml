@@ -1,67 +1,32 @@
-name: Deploy Image to GHCR
-
+name: Deploy website
 on:
-  pull_request:
-    branches:
-      - develop2
+    pull_request:
+      branches:
+        - develop
 jobs:
-      push-store-image:
-        runs-on: ubuntu-latest
-        permissions:
-          contents: read
-          packages: write
-        steps:
-          - name: 'Checkout GitHub Action'
-            uses: actions/checkout@main
-          
-          - name: Set up Node.js
-            uses: actions/setup-node@v2
-            with:
-              node-version: '18'
-          
-          - name: Install dependencies
-            run: npm install
-      
-          - name: Build the Angular app
-            run: npm run build --prod
-
-          - name: 'Login to GitHub Container Registry'
-            uses: docker/login-action@v1
-            with:
-              registry: ghcr.io
-              username: ${{github.actor}}
-              password: ${{secrets.GITHUB_TOKEN}}
-
-          - name: 'Build Inventory Image'
-            run: |
-              docker build --no-cache . --tag ghcr.io/karimdevwm/karim-resume:latest
-              docker push ghcr.io/karimdevwm/karim-resume:latest
-          
-      deploy:
-        needs: push-store-image
-        name: deploy image
-        runs-on: ubuntu-latest
-
-        steps:
-          - name: Start SSH agent
-            run: |
-              eval $(ssh-agent -s)
-              echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-            env:
-              SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          
-          - name: install ssh keys
-            # check this thread tounderstand why its needed:
-            # <https://stackoverflow.com/a/70447517
-            run: |
-              install -m 600 -D /dev/null ~/.ssh/id_rsa
-              echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-              ssh-keyscan -H ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
-        
-          - name: Verify SSH access
-            run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH access verified'"
-          
-          - name: connect and pull
-            run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && docker compose pull && docker compose up -d && exit"
-          - name: cleanup
-            run: rm -rf ~/.ssh
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Checkout
+        uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - name: Install Netlify
+        run: npm install netlify-cli@17.10.1 -g
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
+      - name: Deploy to Netlify
+        id: netlify_deploy
+        run: |
+          prod_flag=""
+          if [ "$BRANCH_NAME" = "develop" ]; then prod_flag="--prod"; fi
+          netlify deploy \
+            --dir dist \
+            --site ${{ secrets.NETLIFY_SITE_ID }} \
+            --auth ${{ secrets.NETLIFY_API_TOKEN }} \
+            $prod_flag
