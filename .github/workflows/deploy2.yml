@@ -2,7 +2,7 @@ name: Deploy website
 on:
     pull_request:
       branches:
-        - develop
+        - develop2
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
         id: netlify_deploy
         run: |
           prod_flag=""
-          if [ "$BRANCH_NAME" = "develop" ]; then prod_flag="--prod"; fi
+          if [ "$BRANCH_NAME" = "develop2" ]; then prod_flag="--prod"; fi
           netlify deploy \
             --dir dist \
             --site ${{ secrets.NETLIFY_SITE_ID }} \
